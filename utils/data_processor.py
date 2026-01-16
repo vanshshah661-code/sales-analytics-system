@@ -1,35 +1,55 @@
-def calculate_total_sales(records):
-    total = 0
-    for r in records:
-        total += r["quantity"] * r["unit_price"]
-    return total
+def parse_transactions(raw_lines):
+    """
+    Task 1.2: Parse and clean raw data
+    """
+    transactions = []
+
+    for line in raw_lines:
+        parts = line.split("|")
+
+        if len(parts) != 8:
+            continue
+
+        try:
+            transaction = {
+                "TransactionID": parts[0],
+                "Date": parts[1],
+                "ProductID": parts[2],
+                "ProductName": parts[3].replace(",", ""),
+                "Quantity": int(parts[4].replace(",", "")),
+                "UnitPrice": float(parts[5].replace(",", "")),
+                "CustomerID": parts[6],
+                "Region": parts[7],
+            }
+
+            transactions.append(transaction)
+
+        except ValueError:
+            continue
+
+    return transactions
 
 
-def sales_by_region(records):
-    region_sales = {}
+def validate_and_filter(transactions, region=None, min_amount=None, max_amount=None):
+    """
+    Task 1.3: Validate and filter transactions
+    """
+    valid = []
+    invalid_count = 0
+    total_input = len(transactions)
 
-    for r in records:
-        region = r["region"]
-        region_sales[region] = region_sales.get(region, 0) + (
-            r["quantity"] * r["unit_price"]
-        )
+    for t in transactions:
+        if (
+            t["Quantity"] <= 0
+            or t["UnitPrice"] <= 0
+            or not t["TransactionID"].startswith("T")
+            or not t["ProductID"].startswith("P")
+            or not t["CustomerID"].startswith("C")
+            or not t["Region"]
+        ):
+            invalid_count += 1
+            continue
 
-    return region_sales
+        valid.append(t)
 
-
-def top_products(records, top_n=3):
-    product_sales = {}
-
-    for r in records:
-        product = r["product_name"]
-        product_sales[product] = product_sales.get(product, 0) + (
-            r["quantity"] * r["unit_price"]
-        )
-
-    sorted_products = sorted(
-        product_sales.items(),
-        key=lambda x: x[1],
-        reverse=True
-    )
-
-    return sorted_products[:top_n]
+    # Display available regions
