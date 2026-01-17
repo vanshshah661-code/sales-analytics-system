@@ -31,3 +31,17 @@ def main():
 
 if __name__ == "__main__":
     main()
+if __name__ == "__main__":
+    # existing logic above already runs
+
+    from utils.api_handler import (
+        fetch_all_products,
+        create_product_mapping,
+        enrich_sales_data,
+        save_enriched_data
+    )
+
+    api_products = fetch_all_products()
+    product_mapping = create_product_mapping(api_products)
+    enriched = enrich_sales_data(valid, product_mapping)
+    save_enriched_data(enriched)
